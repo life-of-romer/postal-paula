@@ -1,16 +1,348 @@
 ---
+import { Image } from 'astro:assets';
+import foto from '../assets/budapest.jpg';
+import sello from '../assets/sello.png';
+
+// Bombillas del cable del Puente de las Cadenas (catenaria)
+const bombillas = Array.from({ length: 34 }, (_, i) => {
+	const t = i / 33;
+	const x = t * 100;
+	const y = 4 + 8 * (1 - Math.pow(2 * t - 1, 2));
+	return { x, y, d: (i * 0.37) % 3 };
+});
 ---
 
-<html lang="en">
+<html lang="es">
 	<head>
 		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
+		<title>Para Paula · Budapest</title>
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;1,9..144,300;1,9..144,600&family=Caveat:wght@500;700&family=DM+Mono:wght@400&display=swap"
+			rel="stylesheet"
+		/>
 	</head>
 	<body>
-		<h1>Astro</h1>
+		<!-- Cable del puente con bombillas -->
+		<svg class="cable" viewBox="0 0 100 30" preserveAspectRatio="none" aria-hidden="true">
+			<path d="M0 4 Q50 20 100 4" />
+			{bombillas.map((b) => <circle cx={b.x} cy={b.y} r="0.45" style={`--d:${b.d}s`} />)}
+		</svg>
+
+		<header>
+			<p class="kicker">Széchenyi Lánchíd · 47.49° N 19.04° E</p>
+			<h1>Budapest, <em>éjjel</em></h1>
+			<p class="sub">una postal para Paula</p>
+		</header>
+
+		<main class="escena">
+			<div class="polaroid" id="polaroid" tabindex="0" aria-label="Polaroid de Paula en Budapest. Arrastra para girarla.">
+				<!-- Cara delantera -->
+				<div class="cara frente">
+					<div class="foto">
+						<Image src={foto} alt="Paula frente al Puente de las Cadenas iluminado, de noche, junto al Danubio" widths={[480, 760, 1100]} sizes="(max-width: 600px) 80vw, 360px" loading="eager" />
+					</div>
+					<p class="pie">Budapest, de noche ✦</p>
+				</div>
+
+				<!-- Cara trasera -->
+				<div class="cara dorso">
+					<div class="dorso-top">
+						<span class="marca">POLAROID · BUDAPEST</span>
+						<Image src={sello} alt="Sello húngaro antiguo con el Puente de las Cadenas" class="sello" width={150} />
+						<svg class="matasellos" viewBox="0 0 120 120" aria-hidden="true">
+							<circle cx="60" cy="60" r="44" />
+							<circle cx="60" cy="60" r="34" />
+							<defs><path id="arco" d="M60 60 m-39 0 a39 39 0 1 1 78 0 a39 39 0 1 1 -78 0" /></defs>
+							<text><textPath href="#arco" startOffset="2%">BUDAPEST · MAGYAR POSTA · BUDAPEST ·</textPath></text>
+							<text x="60" y="64" text-anchor="middle" class="fecha">2026</text>
+							<path class="ondas" d="M100 46 q8 -6 16 0 t16 0 t16 0 M100 60 q8 -6 16 0 t16 0 t16 0 M100 74 q8 -6 16 0 t16 0 t16 0" />
+						</svg>
+					</div>
+					<div class="mensaje">
+						<p>Paula,</p>
+						<p>que esta noche junto al Danubio, con el puente encendido detrás, se quede guardada para siempre.</p>
+						<p class="firma">— con cariño</p>
+					</div>
+				</div>
+
+				<!-- Canto (grosor del cartón) -->
+				<div class="canto c-arriba"></div>
+				<div class="canto c-abajo"></div>
+				<div class="canto c-izq"></div>
+				<div class="canto c-der"></div>
+				<div class="brillo" aria-hidden="true"></div>
+			</div>
+			<div class="sombra" aria-hidden="true"></div>
+		</main>
+
+		<footer>
+			<button id="girar" type="button">↻ darle la vuelta</button>
+			<p class="pista">arrastra la foto para girarla</p>
+		</footer>
+
+		<!-- Reflejos del Danubio -->
+		<div class="danubio" aria-hidden="true">
+			{Array.from({ length: 22 }, (_, i) => <span style={`--i:${i}`} />)}
+		</div>
+
+		<script>
+			const card = document.getElementById('polaroid')!;
+			const btn = document.getElementById('girar')!;
+			const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+			let rx = -6, ry = location.hash === "#dorso" ? 170 : -12; // rotación actual
+			let vx = 0, vy = 0;             // velocidad (inercia)
+			let target: number | null = null; // destino al pulsar "darle la vuelta"
+			let dragging = false, lastX = 0, lastY = 0, t = 0;
+
+			const clampX = (v: number) => Math.max(-35, Math.min(35, v));
+
+			function render() {
+				card.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg)`;
+				const n = ((ry % 360) + 360) % 360;
+				card.style.setProperty('--gx', `${50 + Math.sin((ry * Math.PI) / 180) * 60}%`);
+				card.style.setProperty('--gy', `${50 - rx * 1.5}%`);
+				card.classList.toggle('de-espaldas', n > 90 && n < 270);
+			}
+
+			function loop() {
+				t += 0.016;
+				if (!dragging) {
+					if (target !== null) {
+						ry += (target - ry) * 0.09;
+						if (Math.abs(target - ry) < 0.1) { ry = target; target = null; }
+					} else {
+						ry += vy; rx = clampX(rx + vx);
+						vx *= 0.94; vy *= 0.94;
+						// balanceo suave en reposo, como colgada de un hilo
+						if (!reduce && Math.abs(vy) < 0.05) { ry += Math.sin(t * 0.8) * 0.04; rx += Math.cos(t * 0.6) * 0.02; }
+						rx += (-6 - rx) * 0.01;
+					}
+				}
+				render();
+				requestAnimationFrame(loop);
+			}
+
+			card.addEventListener('pointerdown', (e) => {
+				dragging = true; target = null; vx = vy = 0;
+				lastX = e.clientX; lastY = e.clientY;
+				card.setPointerCapture(e.pointerId);
+				document.body.classList.add('arrastrando');
+			});
+			card.addEventListener('pointermove', (e) => {
+				if (!dragging) return;
+				const dx = e.clientX - lastX, dy = e.clientY - lastY;
+				lastX = e.clientX; lastY = e.clientY;
+				vy = dx * 0.45; vx = -dy * 0.3;
+				ry += vy; rx = clampX(rx + vx);
+			});
+			const soltar = () => { dragging = false; document.body.classList.remove('arrastrando'); };
+			card.addEventListener('pointerup', soltar);
+			card.addEventListener('pointercancel', soltar);
+
+			const voltear = () => { vx = vy = 0; target = Math.round((ry + 180) / 180) * 180; };
+			btn.addEventListener('click', voltear);
+			card.addEventListener('dblclick', voltear);
+			card.addEventListener('keydown', (e) => {
+				if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); voltear(); }
+				if (e.key === 'ArrowLeft') ry -= 12;
+				if (e.key === 'ArrowRight') ry += 12;
+			});
+
+			render();
+			requestAnimationFrame(loop);
+		</script>
 	</body>
 </html>
+
+<style is:global>
+	:root {
+		--noche: #06080f;
+		--noche-2: #0d1526;
+		--oro: #f2c46d;
+		--oro-tenue: #f2c46d55;
+		--piedra: #e9dfcc;
+		--papel: #f7f2e7;
+		--tinta: #1d2a4a;
+		--w: min(78vw, 340px);
+		--h: calc(var(--w) * 1.22);
+		--grosor: 5px;
+	}
+	* { box-sizing: border-box; }
+	html, body { margin: 0; min-height: 100%; }
+	body {
+		min-height: 100dvh;
+		background:
+			radial-gradient(120% 70% at 50% 110%, #2a1d0a 0%, transparent 55%),
+			radial-gradient(90% 60% at 50% 0%, var(--noche-2) 0%, var(--noche) 70%);
+		color: var(--piedra);
+		font-family: 'Fraunces', Georgia, serif;
+		display: grid;
+		grid-template-rows: auto 1fr auto;
+		overflow-x: hidden;
+		position: relative;
+	}
+	body.arrastrando { cursor: grabbing; user-select: none; }
+</style>
+
+<style>
+	/* ---------- Cable con bombillas ---------- */
+	.cable {
+		position: absolute; inset: 0 0 auto 0; width: 100%; height: 26vh;
+		pointer-events: none; overflow: visible;
+	}
+	.cable path { fill: none; stroke: #f2c46d33; stroke-width: 0.15; vector-effect: non-scaling-stroke; }
+	.cable circle {
+		fill: var(--oro);
+		filter: drop-shadow(0 0 1.2px var(--oro));
+		animation: parpadeo 3s ease-in-out infinite;
+		animation-delay: var(--d);
+	}
+	@keyframes parpadeo { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
+
+	/* ---------- Cabecera ---------- */
+	header { text-align: center; padding: clamp(5.5rem, 17vh, 9rem) 16px 0; position: relative; z-index: 2; }
+	.kicker {
+		font-family: "DM Mono", monospace; font-size: clamp(0.58rem, 2.6vw, 0.68rem); letter-spacing: 0.16em;
+		text-transform: uppercase; color: var(--oro); opacity: 0.75; margin: 0 0 0.8rem;
+	}
+	h1 {
+		font-weight: 300; font-size: clamp(2.6rem, 9vw, 4.6rem); line-height: 0.95;
+		margin: 0; letter-spacing: -0.02em; color: var(--piedra);
+		text-shadow: 0 0 40px #f2c46d22;
+	}
+	h1 em { font-style: italic; font-weight: 600; color: var(--oro); }
+	.sub { font-family: 'Caveat', cursive; font-size: 1.5rem; color: #e9dfccaa; margin: 0.4rem 0 0; }
+
+	/* ---------- Escena 3D ---------- */
+	.escena {
+		display: grid; place-items: center; perspective: 1400px;
+		padding: 2.5rem 16px 1rem; position: relative; z-index: 2;
+	}
+	.polaroid {
+		position: relative; width: var(--w); height: var(--h);
+		transform-style: preserve-3d; cursor: grab; touch-action: none;
+		outline: none; will-change: transform;
+	}
+	.polaroid:focus-visible { filter: drop-shadow(0 0 12px var(--oro-tenue)); }
+	.cara {
+		position: absolute; inset: 0; backface-visibility: hidden; border-radius: 3px;
+		background: var(--papel);
+	}
+	.frente {
+		transform: translateZ(calc(var(--grosor) / 2));
+		padding: 6% 6% 0;
+		background: linear-gradient(160deg, #fffdf8, #f1ebdd);
+		box-shadow: inset 0 0 0 1px #00000010;
+	}
+	.foto {
+		aspect-ratio: 1 / 1; overflow: hidden; background: #000;
+		box-shadow: inset 0 0 0 1px #0000002a;
+	}
+	.foto :global(img) {
+		width: 100%; height: 100%; object-fit: cover; object-position: 50% 42%; display: block;
+		filter: saturate(1.05) contrast(1.04);
+		pointer-events: none; user-select: none;
+	}
+	.pie {
+		font-family: 'Caveat', cursive; font-weight: 700; color: var(--tinta);
+		font-size: calc(var(--w) * 0.075); text-align: center; margin: 0.55em 0 0;
+		transform: rotate(-1.5deg);
+	}
+
+	/* ---------- Dorso ---------- */
+	.dorso {
+		transform: rotateY(180deg) translateZ(calc(var(--grosor) / 2));
+		padding: 7%;
+		background:
+			repeating-linear-gradient(0deg, transparent 0 27px, #1d2a4a14 27px 28px),
+			linear-gradient(200deg, #faf6ec, #eee6d4);
+		color: var(--tinta);
+		display: flex; flex-direction: column;
+	}
+	.dorso-top { position: relative; display: flex; justify-content: space-between; align-items: flex-start; min-height: 34%; }
+	.marca { font-family: 'DM Mono', monospace; font-size: 0.58rem; letter-spacing: 0.2em; opacity: 0.45; }
+	.sello {
+		width: 30%; height: auto; transform: rotate(4deg); mix-blend-mode: multiply;
+		filter: drop-shadow(0 1px 1px #0003);
+	}
+	.matasellos {
+		position: absolute; right: 14%; top: 8%; width: 42%; overflow: visible;
+		transform: rotate(-14deg); opacity: 0.72; mix-blend-mode: multiply;
+	}
+	.matasellos circle, .matasellos .ondas { fill: none; stroke: #2a3557; stroke-width: 1.6; }
+	.matasellos text { font-family: 'DM Mono', monospace; font-size: 8.5px; fill: #2a3557; letter-spacing: 1px; }
+	.matasellos .fecha { font-size: 14px; letter-spacing: 2px; }
+	.mensaje {
+		font-family: 'Caveat', cursive; font-size: calc(var(--w) * 0.068); line-height: 1.22;
+		margin-top: auto; transform: rotate(-1deg);
+	}
+	.mensaje p { margin: 0 0 0.35em; }
+	.firma { text-align: right; color: #8a5a12; }
+
+	/* ---------- Canto ---------- */
+	.canto { position: absolute; background: #ddd4c2; }
+	.c-arriba, .c-abajo { left: 0; width: 100%; height: var(--grosor); }
+	.c-izq, .c-der { top: 0; height: 100%; width: var(--grosor); }
+	.c-arriba { top: 0; transform: translateY(-50%) rotateX(90deg); }
+	.c-abajo { bottom: 0; transform: translateY(50%) rotateX(90deg); }
+	.c-izq { left: 0; transform: translateX(-50%) rotateY(90deg); }
+	.c-der { right: 0; transform: translateX(50%) rotateY(90deg); }
+
+	/* ---------- Brillo (luz del puente sobre el papel satinado) ---------- */
+	.brillo {
+		position: absolute; inset: 0; pointer-events: none; border-radius: 3px;
+		transform: translateZ(calc(var(--grosor) / 2 + 0.5px));
+		background: radial-gradient(60% 45% at var(--gx, 50%) var(--gy, 40%), #fff6dd55, transparent 70%);
+		mix-blend-mode: soft-light; backface-visibility: hidden;
+	}
+	.polaroid.de-espaldas .brillo { opacity: 0; }
+
+	.sombra {
+		width: calc(var(--w) * 0.9); height: 22px; margin-top: 2.2rem;
+		background: radial-gradient(50% 50% at 50% 50%, #000a, transparent 70%);
+		filter: blur(6px);
+	}
+
+	/* ---------- Pie ---------- */
+	footer { text-align: center; padding: 0 16px 9rem; position: relative; z-index: 3; }
+	button {
+		font-family: 'DM Mono', monospace; font-size: 0.8rem; letter-spacing: 0.08em;
+		color: var(--noche); background: var(--oro); border: 0; border-radius: 999px;
+		padding: 0.75em 1.4em; cursor: pointer;
+		box-shadow: 0 0 0 0 var(--oro-tenue), 0 6px 24px #f2c46d33;
+		transition: transform 0.2s, box-shadow 0.3s;
+	}
+	button:hover { transform: translateY(-2px); box-shadow: 0 0 0 6px #f2c46d1f, 0 10px 30px #f2c46d44; }
+	button:focus-visible { outline: 2px solid var(--piedra); outline-offset: 3px; }
+	.pista { font-family: 'Caveat', cursive; font-size: 1.15rem; color: #e9dfcc77; margin: 0.9rem 0 0; }
+
+	/* ---------- Reflejos del Danubio ---------- */
+	.danubio {
+		position: absolute; left: 0; right: 0; bottom: 0; height: 22vh;
+		overflow: hidden; pointer-events: none; z-index: 1;
+		mask-image: linear-gradient(to top, #000 30%, transparent);
+	}
+	.danubio span {
+		position: absolute;
+		left: calc(50% + (var(--i) - 11) * 3.4%);
+		bottom: calc(var(--i) * 0.9% + 4%);
+		width: calc(14px + (var(--i) * 7 % 40) * 1px); height: 2px; border-radius: 2px;
+		background: linear-gradient(90deg, transparent, var(--oro), transparent);
+		opacity: 0.55;
+		animation: brillo-agua calc(2.4s + var(--i) * 0.13s) ease-in-out infinite alternate;
+		animation-delay: calc(var(--i) * -0.4s);
+	}
+	@keyframes brillo-agua {
+		from { transform: translateX(-10px) scaleX(0.6); opacity: 0.2; }
+		to { transform: translateX(10px) scaleX(1.3); opacity: 0.75; }
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.cable circle, .danubio span { animation: none; }
+	}
+</style>
