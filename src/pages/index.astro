@@ -5,8 +5,8 @@ import noche from '../assets/budapest.jpg';
 import otono from '../assets/otono.jpg';
 
 const fotos = [
-	{ src: noche, pie: 'Lánchíd, 23:47', foco: '50% 45%', alt: 'Paula de noche frente al Puente de las Cadenas iluminado', dorso: 'definicion' },
-	{ src: otono, pie: 'octubre', foco: '55% 30%', alt: 'Paula sonriendo en un parque con los árboles en otoño', dorso: 'nota' },
+	{ src: noche, foco: '50% 45%', alt: 'Paula de noche frente al Puente de las Cadenas iluminado', dorso: 'definicion' },
+	{ src: otono, foco: '55% 30%', alt: 'Paula sonriendo en un parque con los árboles en otoño', dorso: 'nota' },
 ];
 ---
 
@@ -27,11 +27,6 @@ const fotos = [
 	<body>
 		<div class="pantallazo" aria-hidden="true"></div>
 
-		<header>
-			<p class="meta">Budapest &nbsp;·&nbsp; 2026 &nbsp;·&nbsp; 2 exposiciones</p>
-			<h1>Budapest, <em>para Paula</em></h1>
-		</header>
-
 		<main class="escena" id="escena">
 			<div class="sombra" aria-hidden="true"></div>
 
@@ -49,7 +44,6 @@ const fotos = [
 						<div class="foto">
 							<Image src={f.src} alt={f.alt} widths={[400, 640, 900]} sizes="(max-width: 600px) 50vw, 230px" loading="eager" style={`object-position:${f.foco}`} />
 						</div>
-						<p class="pie">{f.pie}</p>
 					</div>
 					<div class="cara dorso">
 						{f.dorso === 'definicion' ? (
@@ -70,6 +64,7 @@ const fotos = [
 								<p class="firma">— te quiero</p>
 							</div>
 						)}
+						<span class="impreso" aria-hidden="true">BUDAPEST · INSTANT FILM · 0{i + 1}/02</span>
 					</div>
 					<div class="canto c-arriba"></div>
 					<div class="canto c-abajo"></div>
@@ -290,7 +285,7 @@ const fotos = [
 		--ocre: #a8742c;
 		--rojo: #c8312b;
 		/* cámara y fotos se dimensionan juntas para que todo quepa en el móvil */
-		--cw: min(88vw, 400px, 50svh);
+		--cw: min(88vw, 410px, 54svh);
 		--ch: calc(var(--cw) * 0.9722);
 		--pw: calc(var(--cw) * 0.56);
 		--ph: calc(var(--pw) * 1.2);
@@ -313,10 +308,6 @@ const fotos = [
 </style>
 
 <style>
-	header { padding: calc(1.3rem + env(safe-area-inset-top)) 20px 0; text-align: center; }
-	.meta { font-family: 'DM Mono', monospace; font-size: 0.64rem; letter-spacing: 0.24em; text-transform: uppercase; color: var(--gris); margin: 0 0 0.35rem; }
-	h1 { font-weight: 400; font-size: clamp(2rem, 8.5vw, 3.4rem); line-height: 1; margin: 0; letter-spacing: -0.01em; }
-	h1 em { color: var(--ocre); font-weight: 500; }
 
 	/* ---------- Escena ---------- */
 	.escena {
@@ -411,37 +402,66 @@ const fotos = [
 	.p2.en-mesa { left: calc(var(--cw) * 0.44); top: calc(var(--ch) * 0.9 + 22px); --tilt: 6deg; }
 	.polaroid.levantada { cursor: grabbing; scale: 1.04; }
 
-	.cara { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; border-radius: 2px; background: var(--papel); }
-	.frente { transform: translateZ(calc(var(--grosor) / 2)); padding: 7% 7% 0; box-shadow: 0 1px 1px #0000001a, 0 18px 30px -14px #0006; }
-	.foto { aspect-ratio: 1; overflow: hidden; background: #1d2024; position: relative; }
+	.cara { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; border-radius: 1.6% / 1.3%; }
+
+	/* Frente: papel mate con grano, proporciones reales de película instantánea (88 × 107 mm, foto 79 × 79) */
+	.frente {
+		transform: translateZ(calc(var(--grosor) / 2)); padding: 5.2% 5.2% 0;
+		background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"), linear-gradient(172deg, #fcfbf7 0%, #f5f2ea 60%, #efebe2 100%);
+		box-shadow:
+			inset 0 0 0 0.5px #00000024, inset 0 1px 0 #ffffff,
+			0 1px 1px #00000014, 0 3px 6px -2px #00000014, 0 24px 36px -18px #00000070;
+	}
+	/* abajo, el ligero relieve donde estaba el reactivo */
+	.frente::after {
+		content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 9%; border-radius: inherit; pointer-events: none;
+		background: linear-gradient(#0000, #0000000a);
+	}
+	.foto { aspect-ratio: 1; overflow: hidden; background: #1d2024; position: relative; border-radius: 0.6%; }
+	/* la foto queda un pelín hundida en el marco, con brillo de película satinada */
+	.foto::after {
+		content: ''; position: absolute; inset: 0; pointer-events: none;
+		box-shadow: inset 0 0 0 1px #0000004d, inset 0 2px 5px #00000059, inset 0 -1px 0 #ffffff1f;
+		background: linear-gradient(112deg, #0000 38%, #ffffff26 47%, #ffffff0a 54%, #0000 62%) var(--gx, 50%) 0 / 260% 100% no-repeat;
+	}
 	.foto :global(img) {
 		width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; user-select: none; -webkit-user-drag: none;
 		/* revelado: de lechoso y frío a color pleno */
 		filter: saturate(calc(0.05 + var(--dev) * 1)) contrast(calc(0.5 + var(--dev) * 0.53)) brightness(calc(1.6 - var(--dev) * 0.6)) blur(calc((1 - var(--dev)) * 2.5px));
 		opacity: calc(0.15 + var(--dev) * 0.85);
 	}
-	.pie { font-family: 'Homemade Apple', cursive; font-size: calc(var(--pw) * 0.055); color: #2b2a28; margin: 0.85em 0 0 0.2em; transform: rotate(-2deg); }
 	.polaroid:focus-visible .frente { box-shadow: 0 0 0 2px var(--ocre), 0 18px 30px -14px #0006; }
 
+	/* Dorso: el reverso negro de la película, escrito con rotulador blanco */
 	.dorso {
-		transform: rotateY(180deg) translateZ(calc(var(--grosor) / 2)); padding: 9%;
-		display: flex; flex-direction: column; justify-content: center;
-		box-shadow: 0 18px 30px -14px #0006; background: linear-gradient(200deg, #fcfaf6, #f1ece2);
+		transform: rotateY(180deg) translateZ(calc(var(--grosor) / 2)); padding: 10% 9% 15%;
+		display: flex; flex-direction: column; justify-content: center; color: #f3efe6;
+		background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"), radial-gradient(130% 90% at 25% 15%, #2c2c2e, #18181a 60%, #121213);
+		box-shadow: inset 0 0 0 0.5px #ffffff14, 0 24px 36px -18px #00000070;
 	}
-	.definicion { font-size: calc(var(--pw) * 0.056); line-height: 1.28; }
+	/* marca del área de la foto, como en el reverso real */
+	.dorso::before {
+		content: ''; position: absolute; left: 5.2%; right: 5.2%; top: 4.3%; aspect-ratio: 1;
+		border: 1px solid #ffffff0d; border-radius: 0.6%; pointer-events: none;
+	}
+	.impreso {
+		position: absolute; left: 0; right: 0; bottom: 5%; text-align: center;
+		font-family: 'DM Mono', monospace; font-size: calc(var(--pw) * 0.027); letter-spacing: 0.3em; color: #ffffff3d;
+	}
+	.definicion { font-size: calc(var(--pw) * 0.051); line-height: 1.26; }
 	.lema { font-size: 2.2em; font-style: italic; margin: 0; line-height: 1; }
-	.fon { font-family: 'DM Mono', monospace; font-size: 0.6em; color: var(--gris); margin: 0.4em 0 0.7em; }
+	.fon { font-family: 'DM Mono', monospace; font-size: 0.6em; color: #ffffff80; margin: 0.4em 0 0.7em; }
 	.fon i { font-family: 'Cormorant Garamond', serif; font-size: 1.4em; }
 	.definicion ol { margin: 0; padding-left: 1.1em; }
 	.definicion li { margin-bottom: 0.3em; }
-	.definicion li::marker { color: var(--ocre); font-family: 'DM Mono', monospace; font-size: 0.8em; }
+	.definicion li::marker { color: #e3bd84; font-family: 'DM Mono', monospace; font-size: 0.8em; }
 	.ver { margin: 0.45em 0 0; }
-	.ver i { color: var(--gris); }
-	.nota { font-family: 'Homemade Apple', cursive; font-size: calc(var(--pw) * 0.052); line-height: 1.85; color: #24231f; }
+	.ver i { color: #ffffff80; }
+	.nota { font-family: 'Homemade Apple', cursive; font-size: calc(var(--pw) * 0.052); line-height: 1.85; color: #f4f0e6; text-shadow: 0 0 0.6px #fff9; }
 	.nota p { margin: 0 0 0.55em; }
-	.firma { text-align: right; color: var(--ocre); font-size: 0.9em; }
+	.firma { text-align: right; color: #e3bd84; font-size: 0.9em; }
 
-	.canto { position: absolute; background: #e6e1d6; }
+	.canto { position: absolute; background: linear-gradient(90deg, #ece8df, #d9d4c9); }
 	.c-arriba, .c-abajo { left: 0; width: 100%; height: var(--grosor); }
 	.c-izq, .c-der { top: 0; height: 100%; width: var(--grosor); }
 	.c-arriba { top: 0; transform: translateY(-50%) rotateX(90deg); }
