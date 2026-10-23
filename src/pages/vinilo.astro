@@ -1,0 +1,326 @@
+---
+import { Image } from 'astro:assets';
+import noche from '../assets/budapest.jpg';
+import otono from '../assets/otono.jpg';
+
+const fotos = [
+	{
+		src: noche, pos: 'p1', pie: 'Lánchíd, 23:47', foco: '50% 45%',
+		alt: 'Paula de noche frente al Puente de las Cadenas iluminado',
+		dorso: 'definicion',
+	},
+	{
+		src: otono, pos: 'p2', pie: 'octubre', foco: '55% 30%',
+		alt: 'Paula sonriendo en un parque con los árboles en otoño',
+		dorso: 'nota',
+	},
+];
+---
+
+<html lang="es">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+		<meta name="theme-color" content="#eee7db" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<title>Szeretlek · para Paula</title>
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,500&family=Homemade+Apple&family=DM+Mono:wght@400&display=swap"
+			rel="stylesheet"
+		/>
+	</head>
+	<body>
+		<header>
+			<p class="meta">Lado A &nbsp;·&nbsp; 33⅓ RPM &nbsp;·&nbsp; Stereo</p>
+			<h1>Budapest, <em>para Paula</em></h1>
+			<p class="sonando" id="sonando" aria-live="polite"><span>♪ A3 · Szeretlek</span> — no sé cantar, así que te lo pongo en disco.</p>
+		</header>
+
+		<main class="mesa">
+			<!-- Vinilo -->
+			<button class="vinilo" id="vinilo" type="button" aria-pressed="false" aria-label="Reproducir el vinilo">
+				<span class="surcos"></span>
+				<span class="etiqueta">
+					<span class="e-top">SIDE A</span>
+					<span class="e-titulo">Szeretlek</span>
+					<span class="e-trad">(te quiero, en húngaro)</span>
+					<span class="e-linea"></span>
+					<ol class="e-pistas">
+						<li>Lánchíd, 23:47</li>
+						<li>Hojas de octubre</li>
+						<li>Szeretlek</li>
+					</ol>
+					<span class="e-bottom">STEREO</span>
+					<span class="agujero"></span>
+				</span>
+			</button>
+
+			<!-- Polaroids -->
+			{fotos.map((f, i) => (
+				<div class={`polaroid ${f.pos}`} tabindex="0" role="img" aria-label={`${f.alt}. Toca para darle la vuelta, arrastra para girarla.`} style={`--z:${i + 2}`}>
+					<div class="cara frente">
+						<div class="foto">
+							<Image src={f.src} alt={f.alt} widths={[420, 700, 1000]} sizes="(max-width: 700px) 58vw, 320px" loading="eager" style={`object-position:${f.foco}`} />
+						</div>
+						<p class="pie">{f.pie}</p>
+					</div>
+					<div class="cara dorso">
+						{f.dorso === 'definicion' ? (
+							<div class="definicion">
+								<p class="lema">szerelem</p>
+								<p class="fon">/ˈsɛrɛlɛm/ · <i>sust. húngaro</i></p>
+								<ol>
+									<li>Lo que convierte una ciudad desconocida en un sitio al que volver.</li>
+									<li>Cruzar el Danubio de noche sin prisa por llegar a la otra orilla.</li>
+									<li>Que un puente con miles de bombillas acabe siendo solo el fondo.</li>
+								</ol>
+								<p class="ver"><i>ver también:</i> Paula.</p>
+							</div>
+						) : (
+							<div class="nota">
+								<p>En octubre todo se cae: las hojas, el sol a las seis, los planes.</p>
+								<p>Yo caí antes. Y fue por ti.</p>
+								<p class="firma">— te quiero</p>
+							</div>
+						)}
+					</div>
+					<div class="canto c-arriba"></div>
+					<div class="canto c-abajo"></div>
+					<div class="canto c-izq"></div>
+					<div class="canto c-der"></div>
+					<div class="brillo" aria-hidden="true"></div>
+				</div>
+			))}
+		</main>
+
+		<footer>
+			<p class="pista">toca una foto para darle la vuelta · toca el disco para que suene</p>
+			<a href="/color" class="otra">versión en color →</a>
+		</footer>
+
+		<script>
+			const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+			const cards = [...document.querySelectorAll<HTMLElement>('.polaroid')];
+			let zTop = 10;
+
+			type Estado = { el: HTMLElement; rx: number; ry: number; vx: number; vy: number; target: number | null; drag: boolean; lx: number; ly: number; mov: number; fase: number };
+			const estados: Estado[] = cards.map((el, i) => ({ el, rx: 0, ry: 0, vx: 0, vy: 0, target: null, drag: false, lx: 0, ly: 0, mov: 0, fase: i * 1.7 }));
+			const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
+
+			for (const s of estados) {
+				const { el } = s;
+				const voltear = () => { s.vx = s.vy = 0; s.target = Math.round(s.ry / 180) * 180 + 180; navigator.vibrate?.(10); };
+				el.addEventListener('pointerdown', (e) => {
+					s.drag = true; s.target = null; s.vx = s.vy = 0; s.mov = 0;
+					s.lx = e.clientX; s.ly = e.clientY;
+					el.setPointerCapture(e.pointerId);
+					el.style.setProperty('--z', String(++zTop)); // al tocarla, pasa arriba
+					el.classList.add('levantada');
+				});
+				el.addEventListener('pointermove', (e) => {
+					if (!s.drag) return;
+					const dx = e.clientX - s.lx, dy = e.clientY - s.ly;
+					s.lx = e.clientX; s.ly = e.clientY; s.mov += Math.abs(dx) + Math.abs(dy);
+					s.vy = dx * 0.5; s.vx = -dy * 0.3;
+					s.ry += s.vy; s.rx = clamp(s.rx + s.vx, -35, 35);
+				});
+				const soltar = () => {
+					if (!s.drag) return;
+					s.drag = false; el.classList.remove('levantada');
+					if (s.mov < 8) voltear(); // un toque = darle la vuelta
+				};
+				el.addEventListener('pointerup', soltar);
+				el.addEventListener('pointercancel', () => { s.drag = false; el.classList.remove('levantada'); });
+				el.addEventListener('keydown', (e) => {
+					if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); voltear(); }
+				});
+			}
+
+			let t = 0;
+			function loop() {
+				t += 0.016;
+				for (const s of estados) {
+					if (!s.drag) {
+						if (s.target !== null) {
+							s.ry += (s.target - s.ry) * 0.1;
+							if (Math.abs(s.target - s.ry) < 0.1) { s.ry = s.target; s.target = null; }
+						} else {
+							s.ry += s.vy; s.rx = clamp(s.rx + s.vx, -35, 35);
+							s.vx *= 0.92; s.vy *= 0.92;
+							if (Math.abs(s.vy) < 0.6) s.ry += (Math.round(s.ry / 180) * 180 - s.ry) * 0.07;
+							s.rx += (0 - s.rx) * 0.06;
+						}
+					}
+					const sway = reduce ? 0 : Math.sin(t * 0.8 + s.fase) * 2;
+					s.el.style.setProperty('--rx', `${s.rx + sway * 0.4}deg`);
+					s.el.style.setProperty('--ry', `${s.ry + sway}deg`);
+					s.el.style.setProperty('--gx', `${50 + Math.sin((s.ry * Math.PI) / 180) * 70}%`);
+					const n = (((s.ry + sway) % 360) + 360) % 360;
+					s.el.classList.toggle('de-espaldas', n > 90 && n < 270);
+				}
+				requestAnimationFrame(loop);
+			}
+			requestAnimationFrame(loop);
+
+			// El disco: tocar para que gire (33⅓ rpm ≈ 1,8 s por vuelta)
+			const vinilo = document.getElementById('vinilo')!;
+			vinilo.addEventListener('click', () => {
+				const on = vinilo.getAttribute('aria-pressed') !== 'true';
+				vinilo.setAttribute('aria-pressed', String(on));
+				vinilo.setAttribute('aria-label', on ? 'Parar el vinilo' : 'Reproducir el vinilo');
+				document.getElementById('sonando')!.classList.toggle('on', on);
+			});
+		</script>
+	</body>
+</html>
+
+<style is:global>
+	:root {
+		--crema: #eee7db;
+		--papel: #fbf9f4;
+		--tinta: #161513;
+		--gris: #6f6a62;
+		--ocre: #a8742c;
+		--w: min(56vw, 300px);
+		--grosor: 4px;
+	}
+	* { box-sizing: border-box; }
+	html, body { margin: 0; }
+	body {
+		min-height: 100svh; display: flex; flex-direction: column; overflow-x: hidden;
+		color: var(--tinta); font-family: 'Cormorant Garamond', Georgia, serif;
+		background-color: var(--crema);
+		/* grano de papel */
+		background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .06 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+		-webkit-tap-highlight-color: transparent;
+	}
+</style>
+
+<style>
+	header { padding: calc(1.4rem + env(safe-area-inset-top)) 20px 0; position: relative; z-index: 20; }
+	.meta { font-family: 'DM Mono', monospace; font-size: 0.66rem; letter-spacing: 0.24em; text-transform: uppercase; color: var(--gris); margin: 0 0 0.4rem; }
+	h1 { font-weight: 400; font-size: clamp(2.1rem, 9vw, 3.6rem); line-height: 1; margin: 0; letter-spacing: -0.01em; }
+	h1 em { color: var(--ocre); font-weight: 500; }
+	.sonando {
+		margin: 0.7rem 0 0; font-style: italic; font-size: 1.1rem; color: var(--gris); max-width: 34ch;
+		opacity: 0; translate: 0 6px; transition: opacity 0.8s ease, translate 0.8s ease;
+	}
+	.sonando.on { opacity: 1; translate: 0 0; }
+	.sonando span { font-family: 'DM Mono', monospace; font-style: normal; font-size: 0.62rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ocre); margin-right: 0.3em; }
+
+	/* ---------- Mesa ---------- */
+	.mesa { position: relative; flex: 1; min-height: max(560px, 68svh); perspective: 1300px; }
+
+	/* ---------- Vinilo ---------- */
+	.vinilo {
+		--d: min(88vw, 420px);
+		position: absolute; width: var(--d); height: var(--d); border-radius: 50%;
+		left: calc(var(--d) * -0.28); top: 1%;
+		border: 0; padding: 0; cursor: pointer;
+		background:
+			conic-gradient(from 20deg, #ffffff00 0 8%, #ffffff14 12%, #ffffff00 18% 52%, #ffffff10 58%, #ffffff00 64%),
+			repeating-radial-gradient(circle, #111 0 1.5px, #1d1c1b 1.5px 3px),
+			#111;
+		box-shadow: 0 30px 60px -25px #0008, inset 0 0 0 2px #000;
+		animation: girar 1.8s linear infinite paused;
+	}
+	.vinilo[aria-pressed='true'] { animation-play-state: running; }
+	.vinilo:focus-visible { outline: 2px solid var(--ocre); outline-offset: 6px; }
+	.surcos { /* banda lisa entre pistas */
+		position: absolute; inset: 22%; border-radius: 50%;
+		box-shadow: 0 0 0 1px #2a2826, 0 0 0 calc(var(--d) * 0.06) #0e0e0e, 0 0 0 calc(var(--d) * 0.061) #2a2826;
+	}
+	.etiqueta {
+		position: absolute; inset: 29%; border-radius: 50%; background: #e9e3d8;
+		display: flex; flex-direction: column; align-items: center; justify-content: center;
+		color: var(--tinta); text-align: center; font-family: 'DM Mono', monospace;
+		font-size: calc(var(--d) * 0.02); letter-spacing: 0.12em;
+		box-shadow: inset 0 0 0 calc(var(--d) * 0.008) #e9e3d8, inset 0 0 0 calc(var(--d) * 0.0095) #16151355;
+	}
+	.e-titulo { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 2.9em; letter-spacing: 0; margin: 0.15em 0; }
+	.e-trad { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 1.15em; letter-spacing: 0.02em; color: var(--gris); margin: -0.2em 0 0.5em; }
+	.e-linea { display: block; width: 70%; border-top: 1px solid #1615134d; margin: 0.9em 0 1.1em; }
+	.e-linea i { font-style: normal; }
+	.e-pistas { margin: 0 0 0.8em; padding: 0; list-style: none; counter-reset: p; text-align: left; letter-spacing: 0.04em; }
+	.e-pistas li { counter-increment: p; }
+	.e-pistas li::before { content: 'A' counter(p) '  '; color: var(--ocre); }
+	.e-bottom { font-weight: 400; font-size: 1.2em; letter-spacing: 0.2em; }
+	.agujero { position: absolute; width: 4.5%; aspect-ratio: 1; border-radius: 50%; background: var(--crema); left: 50%; top: 50%; translate: -50% -50%; box-shadow: inset 0 1px 2px #0005; }
+	@keyframes girar { to { rotate: 360deg; } }
+
+	/* ---------- Polaroids ---------- */
+	.polaroid {
+		position: absolute; width: var(--w); height: calc(var(--w) * 1.2);
+		transform-style: preserve-3d; touch-action: none; cursor: grab; outline: none;
+		z-index: var(--z);
+		transform: rotateZ(var(--tilt)) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+		transition: scale 0.25s ease;
+	}
+	.polaroid.levantada { cursor: grabbing; scale: 1.04; }
+	.p1 { --tilt: 7deg; right: 4%; top: 3%; }
+	.p2 { --tilt: -6deg; left: 9%; top: 47%; }
+	.cara { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; border-radius: 2px; background: var(--papel); }
+	.frente {
+		transform: translateZ(calc(var(--grosor) / 2)); padding: 7% 7% 0;
+		box-shadow: 0 1px 1px #0000001a, 0 18px 30px -14px #0006;
+	}
+	.foto { aspect-ratio: 1; overflow: hidden; background: #111; }
+	.foto :global(img) { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; user-select: none; -webkit-user-drag: none; filter: contrast(1.03); }
+	.pie { font-family: 'Homemade Apple', cursive; font-size: calc(var(--w) * 0.05); color: #2b2a28; margin: 0.9em 0 0 0.2em; transform: rotate(-2deg); }
+	.polaroid:focus-visible .frente { box-shadow: 0 0 0 2px var(--ocre), 0 18px 30px -14px #0006; }
+
+	.dorso {
+		transform: rotateY(180deg) translateZ(calc(var(--grosor) / 2));
+		padding: 9% 9%; display: flex; flex-direction: column; justify-content: center;
+		box-shadow: 0 18px 30px -14px #0006;
+		background: linear-gradient(200deg, #fcfaf6, #f1ece2);
+	}
+	.definicion { font-size: calc(var(--w) * 0.05); line-height: 1.3; }
+	.lema { font-size: 2.3em; font-style: italic; margin: 0; line-height: 1; }
+	.fon { font-family: 'DM Mono', monospace; font-size: 0.6em; color: var(--gris); margin: 0.4em 0 0.8em; letter-spacing: 0.04em; }
+	.fon i { font-family: 'Cormorant Garamond', serif; font-size: 1.4em; }
+	.definicion ol { margin: 0; padding-left: 1.1em; }
+	.definicion li { margin-bottom: 0.35em; }
+	.definicion li::marker { color: var(--ocre); font-family: 'DM Mono', monospace; font-size: 0.8em; }
+	.ver { margin: 0.5em 0 0; font-size: 0.95em; }
+	.ver i { color: var(--gris); }
+	.nota { font-family: 'Homemade Apple', cursive; font-size: calc(var(--w) * 0.047); line-height: 1.9; color: #24231f; }
+	.nota p { margin: 0 0 0.6em; }
+	.firma { text-align: right; color: var(--ocre); font-size: 0.85em; }
+
+	.canto { position: absolute; background: #e6e1d6; }
+	.c-arriba, .c-abajo { left: 0; width: 100%; height: var(--grosor); }
+	.c-izq, .c-der { top: 0; height: 100%; width: var(--grosor); }
+	.c-arriba { top: 0; transform: translateY(-50%) rotateX(90deg); }
+	.c-abajo { bottom: 0; transform: translateY(50%) rotateX(90deg); }
+	.c-izq { left: 0; transform: translateX(-50%) rotateY(90deg); }
+	.c-der { right: 0; transform: translateX(50%) rotateY(90deg); }
+	.brillo {
+		position: absolute; inset: 0; pointer-events: none;
+		transform: translateZ(calc(var(--grosor) / 2 + 0.5px));
+		background: radial-gradient(50% 40% at var(--gx, 50%) 35%, #ffffff70, transparent 70%);
+		mix-blend-mode: soft-light; backface-visibility: hidden; -webkit-backface-visibility: hidden;
+	}
+	.de-espaldas .brillo { opacity: 0; }
+
+	footer { padding: 0.5rem 20px calc(1.2rem + env(safe-area-inset-bottom)); display: flex; flex-wrap: wrap; gap: 0.4rem 1rem; justify-content: space-between; align-items: baseline; position: relative; z-index: 20; }
+	.pista { font-family: 'DM Mono', monospace; font-size: 0.62rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gris); margin: 0; }
+	.otra { font-style: italic; font-size: 1.05rem; color: var(--tinta); text-underline-offset: 3px; }
+
+	/* ---------- Escritorio ---------- */
+	@media (min-width: 800px) {
+		:root { --w: min(300px, 34svh); }
+		header { padding-left: 6vw; }
+		footer { padding-inline: 6vw; }
+		.mesa { min-height: 82svh; }
+		.vinilo { --d: min(74svh, 640px); left: 8vw; top: 50%; translate: 0 -50%; }
+		.etiqueta { font-size: calc(var(--d) * 0.016); }
+		.p1 { right: auto; left: calc(8vw + min(74svh, 640px) * 0.62); top: 4%; }
+		.p2 { left: calc(8vw + min(74svh, 640px) * 0.86); top: 34%; }
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.vinilo { animation: none; }
+	}
+</style>
