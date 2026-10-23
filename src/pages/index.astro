@@ -34,7 +34,8 @@ const fotos = [
 				<Image src={camara} alt="Cámara instantánea antigua, color crema y negro" widths={[480, 720]} sizes="(max-width: 600px) 88vw, 400px" loading="eager" class="cuerpo" />
 				<span class="luz-flash" aria-hidden="true"></span>
 				<span class="destello" aria-hidden="true"></span>
-				<span class="dymo" aria-hidden="true">SZERETLEK</span>
+				<button class="dymo" id="dymo" type="button" aria-expanded="false" aria-controls="significado">SZERETLEK</button>
+				<span class="significado" id="significado">ti amo, <i>in ungherese</i></span>
 				<button class="disparador" id="disparador" type="button" aria-label="Hacer una foto"></button>
 			</div>
 
@@ -235,7 +236,15 @@ const fotos = [
 					: 'tocca una foto per girarla';
 			}
 			disparador.addEventListener('click', disparar);
-			camara.addEventListener('click', (e) => { if (e.target !== disparador) disparar(); });
+			camara.addEventListener('click', (e) => { if (e.target !== disparador && e.target !== dymo) disparar(); });
+			const dymo = document.getElementById('dymo')!;
+			const significado = document.getElementById('significado')!;
+			dymo.addEventListener('click', () => {
+				const abierto = significado.classList.toggle('visible');
+				dymo.classList.add('leida');
+				dymo.setAttribute('aria-expanded', String(abierto));
+				navigator.vibrate?.(6);
+			});
 
 			/* ---------- Bucle ---------- */
 			function loop() {
@@ -358,8 +367,29 @@ const fotos = [
 		text-shadow: 0 -1px 0 #0009, 0 1px 0 #ffffff26;
 		box-shadow: 0 1px 2px #0007, inset 0 1px 0 #ffffff1a;
 		clip-path: polygon(0 8%, 3% 0, 97% 0, 100% 10%, 100% 92%, 97% 100%, 3% 100%, 0 90%);
-		pointer-events: none;
+		border: 0; margin: 0; cursor: pointer; overflow: hidden;
+		animation: brilla-etiqueta 3.6s ease-in-out 1.2s infinite;
 	}
+	/* Reflejo que cruza la cinta para invitar a tocarla */
+	.dymo::after {
+		content: ''; position: absolute; inset: 0; pointer-events: none;
+		background: linear-gradient(105deg, transparent 35%, #ffffff55 48%, #fff0 60%) no-repeat;
+		background-size: 250% 100%; background-position: 130% 0;
+		animation: reflejo 3.6s ease-in-out 1.2s infinite;
+	}
+	.dymo.leida, .dymo.leida::after { animation: none; }
+	.dymo:focus-visible { outline: 2px solid var(--ocre); outline-offset: 3px; }
+	@keyframes reflejo { 0%, 55% { background-position: 130% 0; } 85%, 100% { background-position: -30% 0; } }
+	@keyframes brilla-etiqueta { 0%, 55%, 100% { color: #f4f1ea; } 72% { color: #fff; text-shadow: 0 0 6px #ffe9c2b0, 0 -1px 0 #0009; } }
+	/* Significado: escrito a lápiz en el cuerpo de la cámara */
+	.significado {
+		position: absolute; left: 50%; top: 71.6%; translate: -50% -30%; rotate: -2.5deg;
+		font-family: 'Homemade Apple', cursive; font-size: calc(var(--cw) * 0.03); white-space: nowrap;
+		color: #5a4a3a; opacity: 0; pointer-events: none;
+		transition: opacity 0.6s ease, translate 0.6s ease;
+	}
+	.significado i { font-style: normal; opacity: 0.6; }
+	.significado.visible { opacity: 0.85; translate: -50% -50%; }
 	.disparador {
 		position: absolute; left: 21.7%; top: 49.7%; width: 13%; aspect-ratio: 1; translate: -50% -50%;
 		border-radius: 50%; border: 0; background: transparent; cursor: pointer; padding: 0;
