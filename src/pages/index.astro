@@ -1,348 +1,326 @@
 ---
 import { Image } from 'astro:assets';
-import foto from '../assets/budapest.jpg';
-import sello from '../assets/sello.png';
+import noche from '../assets/budapest.jpg';
+import otono from '../assets/otono.jpg';
 
-// Bombillas del cable del Puente de las Cadenas (catenaria)
-const bombillas = Array.from({ length: 34 }, (_, i) => {
-	const t = i / 33;
-	const x = t * 100;
-	const y = 4 + 8 * (1 - Math.pow(2 * t - 1, 2));
-	return { x, y, d: (i * 0.37) % 3 };
-});
+const fotos = [
+	{
+		src: noche, pos: 'p1', pie: 'Lánchíd, 23:47', foco: '50% 45%',
+		alt: 'Paula de noche frente al Puente de las Cadenas iluminado',
+		dorso: 'definicion',
+	},
+	{
+		src: otono, pos: 'p2', pie: 'octubre', foco: '55% 30%',
+		alt: 'Paula sonriendo en un parque con los árboles en otoño',
+		dorso: 'nota',
+	},
+];
 ---
 
 <html lang="es">
 	<head>
 		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+		<meta name="theme-color" content="#eee7db" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<title>Para Paula · Budapest</title>
+		<title>Szeretlek · para Paula</title>
 		<link rel="preconnect" href="https://fonts.googleapis.com" />
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 		<link
-			href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;1,9..144,300;1,9..144,600&family=Caveat:wght@500;700&family=DM+Mono:wght@400&display=swap"
+			href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,500&family=Homemade+Apple&family=DM+Mono:wght@400&display=swap"
 			rel="stylesheet"
 		/>
 	</head>
 	<body>
-		<!-- Cable del puente con bombillas -->
-		<svg class="cable" viewBox="0 0 100 30" preserveAspectRatio="none" aria-hidden="true">
-			<path d="M0 4 Q50 20 100 4" />
-			{bombillas.map((b) => <circle cx={b.x} cy={b.y} r="0.45" style={`--d:${b.d}s`} />)}
-		</svg>
-
 		<header>
-			<p class="kicker">Széchenyi Lánchíd · 47.49° N 19.04° E</p>
-			<h1>Budapest, <em>éjjel</em></h1>
-			<p class="sub">una postal para Paula</p>
+			<p class="meta">Lado A &nbsp;·&nbsp; 33⅓ RPM &nbsp;·&nbsp; Stereo</p>
+			<h1>Budapest, <em>para Paula</em></h1>
+			<p class="sonando" id="sonando" aria-live="polite"><span>♪ A3 · Szeretlek</span> — no sé cantar, así que te lo pongo en disco.</p>
 		</header>
 
-		<main class="escena">
-			<div class="polaroid" id="polaroid" tabindex="0" aria-label="Polaroid de Paula en Budapest. Arrastra para girarla.">
-				<!-- Cara delantera -->
-				<div class="cara frente">
-					<div class="foto">
-						<Image src={foto} alt="Paula frente al Puente de las Cadenas iluminado, de noche, junto al Danubio" widths={[480, 760, 1100]} sizes="(max-width: 600px) 80vw, 360px" loading="eager" />
-					</div>
-					<p class="pie">Budapest, de noche ✦</p>
-				</div>
+		<main class="mesa">
+			<!-- Vinilo -->
+			<button class="vinilo" id="vinilo" type="button" aria-pressed="false" aria-label="Reproducir el vinilo">
+				<span class="surcos"></span>
+				<span class="etiqueta">
+					<span class="e-top">SIDE A</span>
+					<span class="e-titulo">Szeretlek</span>
+					<span class="e-trad">(te quiero, en húngaro)</span>
+					<span class="e-linea"></span>
+					<ol class="e-pistas">
+						<li>Lánchíd, 23:47</li>
+						<li>Hojas de octubre</li>
+						<li>Szeretlek</li>
+					</ol>
+					<span class="e-bottom">STEREO</span>
+					<span class="agujero"></span>
+				</span>
+			</button>
 
-				<!-- Cara trasera -->
-				<div class="cara dorso">
-					<div class="dorso-top">
-						<span class="marca">POLAROID · BUDAPEST</span>
-						<Image src={sello} alt="Sello húngaro antiguo con el Puente de las Cadenas" class="sello" width={150} />
-						<svg class="matasellos" viewBox="0 0 120 120" aria-hidden="true">
-							<circle cx="60" cy="60" r="44" />
-							<circle cx="60" cy="60" r="34" />
-							<defs><path id="arco" d="M60 60 m-39 0 a39 39 0 1 1 78 0 a39 39 0 1 1 -78 0" /></defs>
-							<text><textPath href="#arco" startOffset="2%">BUDAPEST · MAGYAR POSTA · BUDAPEST ·</textPath></text>
-							<text x="60" y="64" text-anchor="middle" class="fecha">2026</text>
-							<path class="ondas" d="M100 46 q8 -6 16 0 t16 0 t16 0 M100 60 q8 -6 16 0 t16 0 t16 0 M100 74 q8 -6 16 0 t16 0 t16 0" />
-						</svg>
+			<!-- Polaroids -->
+			{fotos.map((f, i) => (
+				<div class={`polaroid ${f.pos}`} tabindex="0" role="img" aria-label={`${f.alt}. Toca para darle la vuelta, arrastra para girarla.`} style={`--z:${i + 2}`}>
+					<div class="cara frente">
+						<div class="foto">
+							<Image src={f.src} alt={f.alt} widths={[420, 700, 1000]} sizes="(max-width: 700px) 58vw, 320px" loading="eager" style={`object-position:${f.foco}`} />
+						</div>
+						<p class="pie">{f.pie}</p>
 					</div>
-					<div class="mensaje">
-						<p>Paula,</p>
-						<p>que esta noche junto al Danubio, con el puente encendido detrás, se quede guardada para siempre.</p>
-						<p class="firma">— con cariño</p>
+					<div class="cara dorso">
+						{f.dorso === 'definicion' ? (
+							<div class="definicion">
+								<p class="lema">szerelem</p>
+								<p class="fon">/ˈsɛrɛlɛm/ · <i>sust. húngaro</i></p>
+								<ol>
+									<li>Lo que convierte una ciudad desconocida en un sitio al que volver.</li>
+									<li>Cruzar el Danubio de noche sin prisa por llegar a la otra orilla.</li>
+									<li>Que un puente con miles de bombillas acabe siendo solo el fondo.</li>
+								</ol>
+								<p class="ver"><i>ver también:</i> Paula.</p>
+							</div>
+						) : (
+							<div class="nota">
+								<p>En octubre todo se cae: las hojas, el sol a las seis, los planes.</p>
+								<p>Yo caí antes. Y fue por ti.</p>
+								<p class="firma">— te quiero</p>
+							</div>
+						)}
 					</div>
+					<div class="canto c-arriba"></div>
+					<div class="canto c-abajo"></div>
+					<div class="canto c-izq"></div>
+					<div class="canto c-der"></div>
+					<div class="brillo" aria-hidden="true"></div>
 				</div>
-
-				<!-- Canto (grosor del cartón) -->
-				<div class="canto c-arriba"></div>
-				<div class="canto c-abajo"></div>
-				<div class="canto c-izq"></div>
-				<div class="canto c-der"></div>
-				<div class="brillo" aria-hidden="true"></div>
-			</div>
-			<div class="sombra" aria-hidden="true"></div>
+			))}
 		</main>
 
 		<footer>
-			<button id="girar" type="button">↻ darle la vuelta</button>
-			<p class="pista">arrastra la foto para girarla</p>
+			<p class="pista">toca una foto para darle la vuelta · toca el disco para que suene</p>
+			<a href="/color" class="otra">versión en color →</a>
 		</footer>
 
-		<!-- Reflejos del Danubio -->
-		<div class="danubio" aria-hidden="true">
-			{Array.from({ length: 22 }, (_, i) => <span style={`--i:${i}`} />)}
-		</div>
-
 		<script>
-			const card = document.getElementById('polaroid')!;
-			const btn = document.getElementById('girar')!;
 			const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+			const cards = [...document.querySelectorAll<HTMLElement>('.polaroid')];
+			let zTop = 10;
 
-			let rx = -6, ry = location.hash === "#dorso" ? 170 : -12; // rotación actual
-			let vx = 0, vy = 0;             // velocidad (inercia)
-			let target: number | null = null; // destino al pulsar "darle la vuelta"
-			let dragging = false, lastX = 0, lastY = 0, t = 0;
+			type Estado = { el: HTMLElement; rx: number; ry: number; vx: number; vy: number; target: number | null; drag: boolean; lx: number; ly: number; mov: number; fase: number };
+			const estados: Estado[] = cards.map((el, i) => ({ el, rx: 0, ry: 0, vx: 0, vy: 0, target: null, drag: false, lx: 0, ly: 0, mov: 0, fase: i * 1.7 }));
+			const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
 
-			const clampX = (v: number) => Math.max(-35, Math.min(35, v));
-
-			function render() {
-				card.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg)`;
-				const n = ((ry % 360) + 360) % 360;
-				card.style.setProperty('--gx', `${50 + Math.sin((ry * Math.PI) / 180) * 60}%`);
-				card.style.setProperty('--gy', `${50 - rx * 1.5}%`);
-				card.classList.toggle('de-espaldas', n > 90 && n < 270);
+			for (const s of estados) {
+				const { el } = s;
+				const voltear = () => { s.vx = s.vy = 0; s.target = Math.round(s.ry / 180) * 180 + 180; navigator.vibrate?.(10); };
+				el.addEventListener('pointerdown', (e) => {
+					s.drag = true; s.target = null; s.vx = s.vy = 0; s.mov = 0;
+					s.lx = e.clientX; s.ly = e.clientY;
+					el.setPointerCapture(e.pointerId);
+					el.style.setProperty('--z', String(++zTop)); // al tocarla, pasa arriba
+					el.classList.add('levantada');
+				});
+				el.addEventListener('pointermove', (e) => {
+					if (!s.drag) return;
+					const dx = e.clientX - s.lx, dy = e.clientY - s.ly;
+					s.lx = e.clientX; s.ly = e.clientY; s.mov += Math.abs(dx) + Math.abs(dy);
+					s.vy = dx * 0.5; s.vx = -dy * 0.3;
+					s.ry += s.vy; s.rx = clamp(s.rx + s.vx, -35, 35);
+				});
+				const soltar = () => {
+					if (!s.drag) return;
+					s.drag = false; el.classList.remove('levantada');
+					if (s.mov < 8) voltear(); // un toque = darle la vuelta
+				};
+				el.addEventListener('pointerup', soltar);
+				el.addEventListener('pointercancel', () => { s.drag = false; el.classList.remove('levantada'); });
+				el.addEventListener('keydown', (e) => {
+					if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); voltear(); }
+				});
 			}
 
+			let t = 0;
 			function loop() {
 				t += 0.016;
-				if (!dragging) {
-					if (target !== null) {
-						ry += (target - ry) * 0.09;
-						if (Math.abs(target - ry) < 0.1) { ry = target; target = null; }
-					} else {
-						ry += vy; rx = clampX(rx + vx);
-						vx *= 0.94; vy *= 0.94;
-						// balanceo suave en reposo, como colgada de un hilo
-						if (!reduce && Math.abs(vy) < 0.05) { ry += Math.sin(t * 0.8) * 0.04; rx += Math.cos(t * 0.6) * 0.02; }
-						rx += (-6 - rx) * 0.01;
+				for (const s of estados) {
+					if (!s.drag) {
+						if (s.target !== null) {
+							s.ry += (s.target - s.ry) * 0.1;
+							if (Math.abs(s.target - s.ry) < 0.1) { s.ry = s.target; s.target = null; }
+						} else {
+							s.ry += s.vy; s.rx = clamp(s.rx + s.vx, -35, 35);
+							s.vx *= 0.92; s.vy *= 0.92;
+							if (Math.abs(s.vy) < 0.6) s.ry += (Math.round(s.ry / 180) * 180 - s.ry) * 0.07;
+							s.rx += (0 - s.rx) * 0.06;
+						}
 					}
+					const sway = reduce ? 0 : Math.sin(t * 0.8 + s.fase) * 2;
+					s.el.style.setProperty('--rx', `${s.rx + sway * 0.4}deg`);
+					s.el.style.setProperty('--ry', `${s.ry + sway}deg`);
+					s.el.style.setProperty('--gx', `${50 + Math.sin((s.ry * Math.PI) / 180) * 70}%`);
+					const n = (((s.ry + sway) % 360) + 360) % 360;
+					s.el.classList.toggle('de-espaldas', n > 90 && n < 270);
 				}
-				render();
 				requestAnimationFrame(loop);
 			}
-
-			card.addEventListener('pointerdown', (e) => {
-				dragging = true; target = null; vx = vy = 0;
-				lastX = e.clientX; lastY = e.clientY;
-				card.setPointerCapture(e.pointerId);
-				document.body.classList.add('arrastrando');
-			});
-			card.addEventListener('pointermove', (e) => {
-				if (!dragging) return;
-				const dx = e.clientX - lastX, dy = e.clientY - lastY;
-				lastX = e.clientX; lastY = e.clientY;
-				vy = dx * 0.45; vx = -dy * 0.3;
-				ry += vy; rx = clampX(rx + vx);
-			});
-			const soltar = () => { dragging = false; document.body.classList.remove('arrastrando'); };
-			card.addEventListener('pointerup', soltar);
-			card.addEventListener('pointercancel', soltar);
-
-			const voltear = () => { vx = vy = 0; target = Math.round((ry + 180) / 180) * 180; };
-			btn.addEventListener('click', voltear);
-			card.addEventListener('dblclick', voltear);
-			card.addEventListener('keydown', (e) => {
-				if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); voltear(); }
-				if (e.key === 'ArrowLeft') ry -= 12;
-				if (e.key === 'ArrowRight') ry += 12;
-			});
-
-			render();
 			requestAnimationFrame(loop);
+
+			// El disco: tocar para que gire (33⅓ rpm ≈ 1,8 s por vuelta)
+			const vinilo = document.getElementById('vinilo')!;
+			vinilo.addEventListener('click', () => {
+				const on = vinilo.getAttribute('aria-pressed') !== 'true';
+				vinilo.setAttribute('aria-pressed', String(on));
+				vinilo.setAttribute('aria-label', on ? 'Parar el vinilo' : 'Reproducir el vinilo');
+				document.getElementById('sonando')!.classList.toggle('on', on);
+			});
 		</script>
 	</body>
 </html>
 
 <style is:global>
 	:root {
-		--noche: #06080f;
-		--noche-2: #0d1526;
-		--oro: #f2c46d;
-		--oro-tenue: #f2c46d55;
-		--piedra: #e9dfcc;
-		--papel: #f7f2e7;
-		--tinta: #1d2a4a;
-		--w: min(78vw, 340px);
-		--h: calc(var(--w) * 1.22);
-		--grosor: 5px;
+		--crema: #eee7db;
+		--papel: #fbf9f4;
+		--tinta: #161513;
+		--gris: #6f6a62;
+		--ocre: #a8742c;
+		--w: min(56vw, 300px);
+		--grosor: 4px;
 	}
 	* { box-sizing: border-box; }
-	html, body { margin: 0; min-height: 100%; }
+	html, body { margin: 0; }
 	body {
-		min-height: 100dvh;
-		background:
-			radial-gradient(120% 70% at 50% 110%, #2a1d0a 0%, transparent 55%),
-			radial-gradient(90% 60% at 50% 0%, var(--noche-2) 0%, var(--noche) 70%);
-		color: var(--piedra);
-		font-family: 'Fraunces', Georgia, serif;
-		display: grid;
-		grid-template-rows: auto 1fr auto;
-		overflow-x: hidden;
-		position: relative;
+		min-height: 100svh; display: flex; flex-direction: column; overflow-x: hidden;
+		color: var(--tinta); font-family: 'Cormorant Garamond', Georgia, serif;
+		background-color: var(--crema);
+		/* grano de papel */
+		background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .06 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+		-webkit-tap-highlight-color: transparent;
 	}
-	body.arrastrando { cursor: grabbing; user-select: none; }
 </style>
 
 <style>
-	/* ---------- Cable con bombillas ---------- */
-	.cable {
-		position: absolute; inset: 0 0 auto 0; width: 100%; height: 26vh;
-		pointer-events: none; overflow: visible;
+	header { padding: calc(1.4rem + env(safe-area-inset-top)) 20px 0; position: relative; z-index: 20; }
+	.meta { font-family: 'DM Mono', monospace; font-size: 0.66rem; letter-spacing: 0.24em; text-transform: uppercase; color: var(--gris); margin: 0 0 0.4rem; }
+	h1 { font-weight: 400; font-size: clamp(2.1rem, 9vw, 3.6rem); line-height: 1; margin: 0; letter-spacing: -0.01em; }
+	h1 em { color: var(--ocre); font-weight: 500; }
+	.sonando {
+		margin: 0.7rem 0 0; font-style: italic; font-size: 1.1rem; color: var(--gris); max-width: 34ch;
+		opacity: 0; translate: 0 6px; transition: opacity 0.8s ease, translate 0.8s ease;
 	}
-	.cable path { fill: none; stroke: #f2c46d33; stroke-width: 0.15; vector-effect: non-scaling-stroke; }
-	.cable circle {
-		fill: var(--oro);
-		filter: drop-shadow(0 0 1.2px var(--oro));
-		animation: parpadeo 3s ease-in-out infinite;
-		animation-delay: var(--d);
-	}
-	@keyframes parpadeo { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
+	.sonando.on { opacity: 1; translate: 0 0; }
+	.sonando span { font-family: 'DM Mono', monospace; font-style: normal; font-size: 0.62rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ocre); margin-right: 0.3em; }
 
-	/* ---------- Cabecera ---------- */
-	header { text-align: center; padding: clamp(5.5rem, 17vh, 9rem) 16px 0; position: relative; z-index: 2; }
-	.kicker {
-		font-family: "DM Mono", monospace; font-size: clamp(0.58rem, 2.6vw, 0.68rem); letter-spacing: 0.16em;
-		text-transform: uppercase; color: var(--oro); opacity: 0.75; margin: 0 0 0.8rem;
-	}
-	h1 {
-		font-weight: 300; font-size: clamp(2.6rem, 9vw, 4.6rem); line-height: 0.95;
-		margin: 0; letter-spacing: -0.02em; color: var(--piedra);
-		text-shadow: 0 0 40px #f2c46d22;
-	}
-	h1 em { font-style: italic; font-weight: 600; color: var(--oro); }
-	.sub { font-family: 'Caveat', cursive; font-size: 1.5rem; color: #e9dfccaa; margin: 0.4rem 0 0; }
+	/* ---------- Mesa ---------- */
+	.mesa { position: relative; flex: 1; min-height: max(560px, 68svh); perspective: 1300px; }
 
-	/* ---------- Escena 3D ---------- */
-	.escena {
-		display: grid; place-items: center; perspective: 1400px;
-		padding: 2.5rem 16px 1rem; position: relative; z-index: 2;
+	/* ---------- Vinilo ---------- */
+	.vinilo {
+		--d: min(88vw, 420px);
+		position: absolute; width: var(--d); height: var(--d); border-radius: 50%;
+		left: calc(var(--d) * -0.28); top: 1%;
+		border: 0; padding: 0; cursor: pointer;
+		background:
+			conic-gradient(from 20deg, #ffffff00 0 8%, #ffffff14 12%, #ffffff00 18% 52%, #ffffff10 58%, #ffffff00 64%),
+			repeating-radial-gradient(circle, #111 0 1.5px, #1d1c1b 1.5px 3px),
+			#111;
+		box-shadow: 0 30px 60px -25px #0008, inset 0 0 0 2px #000;
+		animation: girar 1.8s linear infinite paused;
 	}
+	.vinilo[aria-pressed='true'] { animation-play-state: running; }
+	.vinilo:focus-visible { outline: 2px solid var(--ocre); outline-offset: 6px; }
+	.surcos { /* banda lisa entre pistas */
+		position: absolute; inset: 22%; border-radius: 50%;
+		box-shadow: 0 0 0 1px #2a2826, 0 0 0 calc(var(--d) * 0.06) #0e0e0e, 0 0 0 calc(var(--d) * 0.061) #2a2826;
+	}
+	.etiqueta {
+		position: absolute; inset: 29%; border-radius: 50%; background: #e9e3d8;
+		display: flex; flex-direction: column; align-items: center; justify-content: center;
+		color: var(--tinta); text-align: center; font-family: 'DM Mono', monospace;
+		font-size: calc(var(--d) * 0.02); letter-spacing: 0.12em;
+		box-shadow: inset 0 0 0 calc(var(--d) * 0.008) #e9e3d8, inset 0 0 0 calc(var(--d) * 0.0095) #16151355;
+	}
+	.e-titulo { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 2.9em; letter-spacing: 0; margin: 0.15em 0; }
+	.e-trad { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 1.15em; letter-spacing: 0.02em; color: var(--gris); margin: -0.2em 0 0.5em; }
+	.e-linea { display: block; width: 70%; border-top: 1px solid #1615134d; margin: 0.9em 0 1.1em; }
+	.e-linea i { font-style: normal; }
+	.e-pistas { margin: 0 0 0.8em; padding: 0; list-style: none; counter-reset: p; text-align: left; letter-spacing: 0.04em; }
+	.e-pistas li { counter-increment: p; }
+	.e-pistas li::before { content: 'A' counter(p) '  '; color: var(--ocre); }
+	.e-bottom { font-weight: 400; font-size: 1.2em; letter-spacing: 0.2em; }
+	.agujero { position: absolute; width: 4.5%; aspect-ratio: 1; border-radius: 50%; background: var(--crema); left: 50%; top: 50%; translate: -50% -50%; box-shadow: inset 0 1px 2px #0005; }
+	@keyframes girar { to { rotate: 360deg; } }
+
+	/* ---------- Polaroids ---------- */
 	.polaroid {
-		position: relative; width: var(--w); height: var(--h);
-		transform-style: preserve-3d; cursor: grab; touch-action: none;
-		outline: none; will-change: transform;
+		position: absolute; width: var(--w); height: calc(var(--w) * 1.2);
+		transform-style: preserve-3d; touch-action: none; cursor: grab; outline: none;
+		z-index: var(--z);
+		transform: rotateZ(var(--tilt)) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+		transition: scale 0.25s ease;
 	}
-	.polaroid:focus-visible { filter: drop-shadow(0 0 12px var(--oro-tenue)); }
-	.cara {
-		position: absolute; inset: 0; backface-visibility: hidden; border-radius: 3px;
-		background: var(--papel);
-	}
+	.polaroid.levantada { cursor: grabbing; scale: 1.04; }
+	.p1 { --tilt: 7deg; right: 4%; top: 3%; }
+	.p2 { --tilt: -6deg; left: 9%; top: 47%; }
+	.cara { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; border-radius: 2px; background: var(--papel); }
 	.frente {
-		transform: translateZ(calc(var(--grosor) / 2));
-		padding: 6% 6% 0;
-		background: linear-gradient(160deg, #fffdf8, #f1ebdd);
-		box-shadow: inset 0 0 0 1px #00000010;
+		transform: translateZ(calc(var(--grosor) / 2)); padding: 7% 7% 0;
+		box-shadow: 0 1px 1px #0000001a, 0 18px 30px -14px #0006;
 	}
-	.foto {
-		aspect-ratio: 1 / 1; overflow: hidden; background: #000;
-		box-shadow: inset 0 0 0 1px #0000002a;
-	}
-	.foto :global(img) {
-		width: 100%; height: 100%; object-fit: cover; object-position: 50% 42%; display: block;
-		filter: saturate(1.05) contrast(1.04);
-		pointer-events: none; user-select: none;
-	}
-	.pie {
-		font-family: 'Caveat', cursive; font-weight: 700; color: var(--tinta);
-		font-size: calc(var(--w) * 0.075); text-align: center; margin: 0.55em 0 0;
-		transform: rotate(-1.5deg);
-	}
+	.foto { aspect-ratio: 1; overflow: hidden; background: #111; }
+	.foto :global(img) { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; user-select: none; -webkit-user-drag: none; filter: contrast(1.03); }
+	.pie { font-family: 'Homemade Apple', cursive; font-size: calc(var(--w) * 0.05); color: #2b2a28; margin: 0.9em 0 0 0.2em; transform: rotate(-2deg); }
+	.polaroid:focus-visible .frente { box-shadow: 0 0 0 2px var(--ocre), 0 18px 30px -14px #0006; }
 
-	/* ---------- Dorso ---------- */
 	.dorso {
 		transform: rotateY(180deg) translateZ(calc(var(--grosor) / 2));
-		padding: 7%;
-		background:
-			repeating-linear-gradient(0deg, transparent 0 27px, #1d2a4a14 27px 28px),
-			linear-gradient(200deg, #faf6ec, #eee6d4);
-		color: var(--tinta);
-		display: flex; flex-direction: column;
+		padding: 9% 9%; display: flex; flex-direction: column; justify-content: center;
+		box-shadow: 0 18px 30px -14px #0006;
+		background: linear-gradient(200deg, #fcfaf6, #f1ece2);
 	}
-	.dorso-top { position: relative; display: flex; justify-content: space-between; align-items: flex-start; min-height: 34%; }
-	.marca { font-family: 'DM Mono', monospace; font-size: 0.58rem; letter-spacing: 0.2em; opacity: 0.45; }
-	.sello {
-		width: 30%; height: auto; transform: rotate(4deg); mix-blend-mode: multiply;
-		filter: drop-shadow(0 1px 1px #0003);
-	}
-	.matasellos {
-		position: absolute; right: 14%; top: 8%; width: 42%; overflow: visible;
-		transform: rotate(-14deg); opacity: 0.72; mix-blend-mode: multiply;
-	}
-	.matasellos circle, .matasellos .ondas { fill: none; stroke: #2a3557; stroke-width: 1.6; }
-	.matasellos text { font-family: 'DM Mono', monospace; font-size: 8.5px; fill: #2a3557; letter-spacing: 1px; }
-	.matasellos .fecha { font-size: 14px; letter-spacing: 2px; }
-	.mensaje {
-		font-family: 'Caveat', cursive; font-size: calc(var(--w) * 0.068); line-height: 1.22;
-		margin-top: auto; transform: rotate(-1deg);
-	}
-	.mensaje p { margin: 0 0 0.35em; }
-	.firma { text-align: right; color: #8a5a12; }
+	.definicion { font-size: calc(var(--w) * 0.05); line-height: 1.3; }
+	.lema { font-size: 2.3em; font-style: italic; margin: 0; line-height: 1; }
+	.fon { font-family: 'DM Mono', monospace; font-size: 0.6em; color: var(--gris); margin: 0.4em 0 0.8em; letter-spacing: 0.04em; }
+	.fon i { font-family: 'Cormorant Garamond', serif; font-size: 1.4em; }
+	.definicion ol { margin: 0; padding-left: 1.1em; }
+	.definicion li { margin-bottom: 0.35em; }
+	.definicion li::marker { color: var(--ocre); font-family: 'DM Mono', monospace; font-size: 0.8em; }
+	.ver { margin: 0.5em 0 0; font-size: 0.95em; }
+	.ver i { color: var(--gris); }
+	.nota { font-family: 'Homemade Apple', cursive; font-size: calc(var(--w) * 0.047); line-height: 1.9; color: #24231f; }
+	.nota p { margin: 0 0 0.6em; }
+	.firma { text-align: right; color: var(--ocre); font-size: 0.85em; }
 
-	/* ---------- Canto ---------- */
-	.canto { position: absolute; background: #ddd4c2; }
+	.canto { position: absolute; background: #e6e1d6; }
 	.c-arriba, .c-abajo { left: 0; width: 100%; height: var(--grosor); }
 	.c-izq, .c-der { top: 0; height: 100%; width: var(--grosor); }
 	.c-arriba { top: 0; transform: translateY(-50%) rotateX(90deg); }
 	.c-abajo { bottom: 0; transform: translateY(50%) rotateX(90deg); }
 	.c-izq { left: 0; transform: translateX(-50%) rotateY(90deg); }
 	.c-der { right: 0; transform: translateX(50%) rotateY(90deg); }
-
-	/* ---------- Brillo (luz del puente sobre el papel satinado) ---------- */
 	.brillo {
-		position: absolute; inset: 0; pointer-events: none; border-radius: 3px;
+		position: absolute; inset: 0; pointer-events: none;
 		transform: translateZ(calc(var(--grosor) / 2 + 0.5px));
-		background: radial-gradient(60% 45% at var(--gx, 50%) var(--gy, 40%), #fff6dd55, transparent 70%);
-		mix-blend-mode: soft-light; backface-visibility: hidden;
+		background: radial-gradient(50% 40% at var(--gx, 50%) 35%, #ffffff70, transparent 70%);
+		mix-blend-mode: soft-light; backface-visibility: hidden; -webkit-backface-visibility: hidden;
 	}
-	.polaroid.de-espaldas .brillo { opacity: 0; }
+	.de-espaldas .brillo { opacity: 0; }
 
-	.sombra {
-		width: calc(var(--w) * 0.9); height: 22px; margin-top: 2.2rem;
-		background: radial-gradient(50% 50% at 50% 50%, #000a, transparent 70%);
-		filter: blur(6px);
-	}
+	footer { padding: 0.5rem 20px calc(1.2rem + env(safe-area-inset-bottom)); display: flex; flex-wrap: wrap; gap: 0.4rem 1rem; justify-content: space-between; align-items: baseline; position: relative; z-index: 20; }
+	.pista { font-family: 'DM Mono', monospace; font-size: 0.62rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gris); margin: 0; }
+	.otra { font-style: italic; font-size: 1.05rem; color: var(--tinta); text-underline-offset: 3px; }
 
-	/* ---------- Pie ---------- */
-	footer { text-align: center; padding: 0 16px 9rem; position: relative; z-index: 3; }
-	button {
-		font-family: 'DM Mono', monospace; font-size: 0.8rem; letter-spacing: 0.08em;
-		color: var(--noche); background: var(--oro); border: 0; border-radius: 999px;
-		padding: 0.75em 1.4em; cursor: pointer;
-		box-shadow: 0 0 0 0 var(--oro-tenue), 0 6px 24px #f2c46d33;
-		transition: transform 0.2s, box-shadow 0.3s;
+	/* ---------- Escritorio ---------- */
+	@media (min-width: 800px) {
+		:root { --w: min(300px, 34svh); }
+		header { padding-left: 6vw; }
+		footer { padding-inline: 6vw; }
+		.mesa { min-height: 82svh; }
+		.vinilo { --d: min(74svh, 640px); left: 8vw; top: 50%; translate: 0 -50%; }
+		.etiqueta { font-size: calc(var(--d) * 0.016); }
+		.p1 { right: auto; left: calc(8vw + min(74svh, 640px) * 0.62); top: 4%; }
+		.p2 { left: calc(8vw + min(74svh, 640px) * 0.86); top: 34%; }
 	}
-	button:hover { transform: translateY(-2px); box-shadow: 0 0 0 6px #f2c46d1f, 0 10px 30px #f2c46d44; }
-	button:focus-visible { outline: 2px solid var(--piedra); outline-offset: 3px; }
-	.pista { font-family: 'Caveat', cursive; font-size: 1.15rem; color: #e9dfcc77; margin: 0.9rem 0 0; }
-
-	/* ---------- Reflejos del Danubio ---------- */
-	.danubio {
-		position: absolute; left: 0; right: 0; bottom: 0; height: 22vh;
-		overflow: hidden; pointer-events: none; z-index: 1;
-		mask-image: linear-gradient(to top, #000 30%, transparent);
-	}
-	.danubio span {
-		position: absolute;
-		left: calc(50% + (var(--i) - 11) * 3.4%);
-		bottom: calc(var(--i) * 0.9% + 4%);
-		width: calc(14px + (var(--i) * 7 % 40) * 1px); height: 2px; border-radius: 2px;
-		background: linear-gradient(90deg, transparent, var(--oro), transparent);
-		opacity: 0.55;
-		animation: brillo-agua calc(2.4s + var(--i) * 0.13s) ease-in-out infinite alternate;
-		animation-delay: calc(var(--i) * -0.4s);
-	}
-	@keyframes brillo-agua {
-		from { transform: translateX(-10px) scaleX(0.6); opacity: 0.2; }
-		to { transform: translateX(10px) scaleX(1.3); opacity: 0.75; }
-	}
-
 	@media (prefers-reduced-motion: reduce) {
-		.cable circle, .danubio span { animation: none; }
+		.vinilo { animation: none; }
 	}
 </style>
