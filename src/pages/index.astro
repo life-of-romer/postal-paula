@@ -3,10 +3,12 @@ import { Image } from 'astro:assets';
 import camara from '../assets/camara.webp';
 import noche from '../assets/budapest.webp';
 import otono from '../assets/otono.webp';
+import hoja from '../assets/hoja.webp';
+import Garabato from '../components/Garabato.astro';
 
 const fotos = [
-	{ src: noche, foco: '50% 45%', alt: 'Paula de noche frente al Puente de las Cadenas iluminado', dorso: 'definicion' },
-	{ src: otono, foco: '55% 30%', alt: 'Paula sonriendo en un parque con los árboles en otoño', dorso: 'nota' },
+	{ src: noche, foco: '50% 45%', alt: 'Paula de noche frente al Puente de las Cadenas iluminado', dorso: 'garabato' },
+	{ src: otono, foco: '55% 30%', alt: 'Paula sonriendo en un parque con los árboles en otoño', dorso: 'hoja' },
 ];
 ---
 
@@ -35,7 +37,7 @@ const fotos = [
 				<span class="luz-flash" aria-hidden="true"></span>
 				<span class="destello" aria-hidden="true"></span>
 				<button class="dymo" id="dymo" type="button" aria-expanded="false" aria-controls="significado">SZERETLEK</button>
-				<span class="significado" id="significado">ti voglio bene, <i>in ungherese</i></span>
+				<span class="significado" id="significado">te quiero, <i>en húngaro</i></span>
 				<button class="disparador" id="disparador" type="button" aria-label="Hacer una foto"></button>
 			</div>
 
@@ -47,23 +49,10 @@ const fotos = [
 						</div>
 					</div>
 					<div class="cara dorso">
-						{f.dorso === 'definicion' ? (
-							<div class="definicion">
-								<p class="lema">szerelem</p>
-								<p class="fon">/ˈsɛrɛlɛm/ · <i>sust. húngaro</i></p>
-								<ol>
-									<li>Lo que convierte una ciudad desconocida en un sitio al que volver.</li>
-									<li>Cruzar el Danubio de noche sin prisa por llegar a la otra orilla.</li>
-									<li>Que un puente con miles de bombillas acabe siendo solo el fondo.</li>
-								</ol>
-								<p class="ver"><i>ver también:</i> Paula.</p>
-							</div>
+						{f.dorso === 'garabato' ? (
+							<div class="recuerdo"><Garabato /></div>
 						) : (
-							<div class="nota">
-								<p>En octubre todo se cae: las hojas, el sol a las seis, los planes.</p>
-								<p>Yo caí antes. Y fue por ti.</p>
-								<p class="firma">— te quiero</p>
-							</div>
+							<div class="recuerdo"><Image src={hoja} alt="" widths={[300, 500]} sizes="(max-width: 600px) 40vw, 180px" loading="eager" class="hoja" /></div>
 						)}
 						<span class="impreso" aria-hidden="true">BUDAPEST · INSTANT FILM · 0{i + 1}/02</span>
 					</div>
@@ -474,22 +463,13 @@ const fotos = [
 		content: ''; position: absolute; left: 5.2%; right: 5.2%; top: 4.3%; aspect-ratio: 1;
 		border: 1px solid #ffffff0d; border-radius: 0.6%; pointer-events: none;
 	}
+	.recuerdo { position: absolute; inset: 0; display: grid; place-items: center; padding: 12% 10% 18%; }
+	.recuerdo :global(.garabato) { width: 92%; rotate: -2deg; }
+	.recuerdo :global(.hoja) { width: 74%; height: auto; rotate: 8deg; filter: drop-shadow(0 3px 3px #0008) drop-shadow(0 1px 1px #0006); }
 	.impreso {
 		position: absolute; left: 0; right: 0; bottom: 5%; text-align: center;
 		font-family: 'DM Mono', monospace; font-size: calc(var(--pw) * 0.027); letter-spacing: 0.3em; color: #ffffff3d;
 	}
-	.definicion { font-size: calc(var(--pw) * 0.051); line-height: 1.26; }
-	.lema { font-size: 2.2em; font-style: italic; margin: 0; line-height: 1; }
-	.fon { font-family: 'DM Mono', monospace; font-size: 0.6em; color: #ffffff80; margin: 0.4em 0 0.7em; }
-	.fon i { font-family: 'Cormorant Garamond', serif; font-size: 1.4em; }
-	.definicion ol { margin: 0; padding-left: 1.1em; }
-	.definicion li { margin-bottom: 0.3em; }
-	.definicion li::marker { color: #e3bd84; font-family: 'DM Mono', monospace; font-size: 0.8em; }
-	.ver { margin: 0.45em 0 0; }
-	.ver i { color: #ffffff80; }
-	.nota { font-family: 'Homemade Apple', cursive; font-size: calc(var(--pw) * 0.052); line-height: 1.85; color: #f4f0e6; text-shadow: 0 0 0.6px #fff9; }
-	.nota p { margin: 0 0 0.55em; }
-	.firma { text-align: right; color: #e3bd84; font-size: 0.9em; }
 
 	.canto { position: absolute; background: linear-gradient(90deg, #ece8df, #d9d4c9); }
 	.c-arriba, .c-abajo { left: 0; width: 100%; height: var(--grosor); }

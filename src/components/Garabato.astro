@@ -1,0 +1,67 @@
+---
+// Puente de las Cadenas dibujado a rotulador blanco: sin palabras, solo el trazo.
+---
+<svg class="garabato" viewBox="0 0 200 200" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+	<defs>
+		<filter id="pulso" x="-5%" y="-5%" width="110%" height="110%">
+			<feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="7" />
+			<feDisplacementMap in="SourceGraphic" scale="2.2" />
+		</filter>
+	</defs>
+	<g filter="url(#pulso)">
+		<!-- luna -->
+		<path d="M160 30 a13 13 0 1 0 9 22 a10 10 0 1 1 -9 -22 z" stroke-width="1.6" />
+		<g stroke-width="1.1" opacity="0.8">
+			<path d="M38 34 l0 5 M35.5 36.5 l5 0" />
+			<path d="M120 22 l0 4 M118 24 l4 0" />
+			<circle cx="78" cy="30" r="0.8" />
+			<circle cx="185" cy="78" r="0.8" />
+		</g>
+
+		<!-- torres (arcos de triunfo) -->
+		<g stroke-width="2">
+			<path d="M56 128 L56 72 L80 72 L80 128" />
+			<path d="M61 128 L61 96 Q68 84 75 96 L75 128" />
+			<path d="M54 72 L82 72 M57 72 L57 66 L79 66 L79 72" />
+			<path d="M120 128 L120 72 L144 72 L144 128" />
+			<path d="M125 128 L125 96 Q132 84 139 96 L139 128" />
+			<path d="M118 72 L146 72 M121 72 L121 66 L143 66 L143 72" />
+		</g>
+
+		<!-- cadenas -->
+		<g stroke-width="1.7">
+			<path d="M4 120 Q30 112 56 76" />
+			<path d="M80 76 Q100 118 120 76" />
+			<path d="M144 76 Q170 112 196 120" />
+		</g>
+		<!-- tirantes -->
+		<g stroke-width="0.9" opacity="0.75">
+			<path d="M20 116 L20 126 M36 106 L36 126 M48 90 L48 126" />
+			<path d="M88 92 L88 126 M96 103 L96 126 M104 103 L104 126 M112 92 L112 126" />
+			<path d="M152 90 L152 126 M164 106 L164 126 M180 116 L180 126" />
+		</g>
+		<!-- tablero -->
+		<path d="M2 127 L198 127 M2 131 L198 131" stroke-width="1.8" />
+
+		<!-- bombillas -->
+		<g fill="currentColor" stroke="none">
+			<circle cx="14" cy="117" r="1.5" /><circle cx="28" cy="111" r="1.5" /><circle cx="42" cy="99" r="1.5" />
+			<circle cx="90" cy="101" r="1.5" /><circle cx="100" cy="106" r="1.5" /><circle cx="110" cy="101" r="1.5" />
+			<circle cx="158" cy="99" r="1.5" /><circle cx="172" cy="111" r="1.5" /><circle cx="186" cy="117" r="1.5" />
+		</g>
+
+		<!-- Danubio con reflejos -->
+		<g stroke-width="1.3">
+			<path d="M8 146 q8 -4 16 0 t16 0 t16 0 M70 150 q7 -3 14 0 t14 0 M118 146 q8 -4 16 0 t16 0 t16 0 t16 0" />
+			<path d="M20 162 q8 -4 16 0 t16 0 M92 160 q8 -4 16 0 t16 0 t16 0 M160 166 q7 -3 14 0 t14 0" opacity="0.8" />
+			<path d="M40 178 q8 -4 16 0 t16 0 t16 0 M130 180 q7 -3 14 0" opacity="0.6" />
+		</g>
+		<g stroke-width="1.3" stroke="#e3bd84" opacity="0.9">
+			<path d="M66 138 l0 6 M66 150 l0 3 M134 138 l0 6 M134 150 l0 3 M100 140 l0 4" />
+		</g>
+	</g>
+</svg>
+
+<style>
+	.garabato { width: 100%; height: auto; display: block; color: #f4f0e6; filter: drop-shadow(0 0 0.4px #fff9); }
+</style>
