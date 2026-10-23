@@ -76,7 +76,7 @@ const fotos = [
 		</main>
 
 		<footer>
-			<p class="pista" id="pista" aria-live="polite"><span class="punto"></span> pulsa el botón rojo</p>
+			<p class="pista" id="pista" aria-live="polite"><span class="punto"></span> premi il pulsante rosso</p>
 		</footer>
 
 		<script>
@@ -219,20 +219,20 @@ const fotos = [
 				setTimeout(() => disparador.classList.remove('pulsado'), 160);
 				if (ocupada) return;
 				const s = estados[disparos];
-				if (!s) { pista.textContent = 'carrete terminado — toca una foto para darle la vuelta'; navigator.vibrate?.(8); return; }
+				if (!s) { pista.textContent = 'rullino finito — tocca una foto per girarla'; navigator.vibrate?.(8); return; }
 				ocupada = true; disparos++;
 				// flash
 				document.body.classList.remove('flash'); void document.body.offsetWidth; document.body.classList.add('flash');
 				sonido(); navigator.vibrate?.([15, 40, 10]);
-				pista.textContent = 'revelando…';
+				pista.textContent = 'sviluppo in corso…';
 				await new Promise((r) => setTimeout(r, reduce ? 0 : 350));
 				await expulsar(s);
 				await new Promise((r) => setTimeout(r, reduce ? 0 : 900));
 				dejarEnMesa(s);
 				ocupada = false;
 				pista.innerHTML = disparos < estados.length
-					? '<span class="punto"></span> otra vez: queda una foto'
-					: 'toca una foto para darle la vuelta';
+					? '<span class="punto"></span> di nuovo: resta un’altra foto'
+					: 'tocca una foto per girarla';
 			}
 			disparador.addEventListener('click', disparar);
 			camara.addEventListener('click', (e) => { if (e.target !== disparador) disparar(); });
@@ -247,7 +247,7 @@ const fotos = [
 
 				for (const s of estados) {
 					if (s.fase === 'camara') continue;
-					s.dev = Math.min(1, s.dev + 0.0035); // se revela sola en ~5 s
+					s.dev = Math.min(1, s.dev + 0.012); // se revela sola en ~1,5 s
 					s.el.style.setProperty('--dev', s.dev.toFixed(3));
 					if (s.fase !== 'mesa') continue;
 					if (!s.drag) {
