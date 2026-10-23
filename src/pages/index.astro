@@ -10,6 +10,8 @@ const fotos = [
 	{ src: noche, foco: '50% 45%', alt: 'Paula de noche frente al Puente de las Cadenas iluminado', dorso: 'garabato' },
 	{ src: otono, foco: '55% 30%', alt: 'Paula sonriendo en un parque con los árboles en otoño', dorso: 'hoja' },
 ];
+const url = new URL(import.meta.env.BASE_URL, Astro.site).href;
+const ogImagen = new URL('og.jpg', url).href;
 ---
 
 <html lang="es">
@@ -19,6 +21,22 @@ const fotos = [
 		<meta name="theme-color" content="#e9dfcf" />
 		<link rel="icon" type="image/svg+xml" href={`${import.meta.env.BASE_URL}favicon.svg`} />
 		<title>Szeretlek · para Paula</title>
+		<meta name="description" content="Hay una cámara esperándote. Pulsa el botón rojo." />
+		<link rel="canonical" href={url} />
+		<!-- vista previa al compartir (WhatsApp, iMessage, Telegram…) -->
+		<meta property="og:type" content="website" />
+		<meta property="og:locale" content="es_ES" />
+		<meta property="og:site_name" content="Szeretlek" />
+		<meta property="og:title" content="Szeretlek · para Paula" />
+		<meta property="og:description" content="Hay una cámara esperándote. Pulsa el botón rojo." />
+		<meta property="og:url" content={url} />
+		<meta property="og:image" content={ogImagen} />
+		<meta property="og:image:secure_url" content={ogImagen} />
+		<meta property="og:image:type" content="image/jpeg" />
+		<meta property="og:image:width" content="1200" />
+		<meta property="og:image:height" content="630" />
+		<meta property="og:image:alt" content="Cámara instantánea antigua con la etiqueta SZERETLEK sacando una foto aún sin revelar" />
+		<meta name="twitter:card" content="summary_large_image" />
 		<link rel="preconnect" href="https://fonts.googleapis.com" />
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 		<link
